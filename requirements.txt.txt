@@ -6,4 +6,6 @@ prophet
 matplotlib
 plotly
 scikit-learn
+plotly==5.20.0
+
 
