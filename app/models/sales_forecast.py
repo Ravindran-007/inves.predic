@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_percentage_error, r2_score
-import joblib
 from datetime import datetime
 import logging
 
@@ -48,11 +47,6 @@ class SalesForecaster:
 
         self.performance = {'mape': mape, 'r2': r2, 'accuracy': max(0, 100 - mape)}
         self.is_trained = True
-
-        logger.info(f"✅ Out-of-sample MAPE: {mape:.2f}%, R²: {r2:.4f}")
-        
-        # Save model
-        joblib.dump(self, 'models/sales_ensemble.pkl')
         return self
     
     def predict_future(self, periods=90):
@@ -71,11 +65,3 @@ class SalesForecaster:
             'yhat_upper': last_periods['yhat_upper']
         })
     
-    @classmethod
-    def load_model(cls):
-        """Load saved model"""
-        try:
-            return joblib.load('models/sales_ensemble.pkl')
-        except FileNotFoundError:
-            logger.warning("Model not found. Train first with: python train.py")
-            return None

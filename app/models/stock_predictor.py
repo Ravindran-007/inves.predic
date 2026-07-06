@@ -6,7 +6,6 @@ from xgboost import XGBRegressor, XGBClassifier
 from lightgbm import LGBMRegressor, LGBMClassifier
 from sklearn.preprocessing import RobustScaler
 from sklearn.metrics import mean_absolute_percentage_error, r2_score, accuracy_score
-import joblib
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -354,15 +353,3 @@ class StockPredictor:
             return self.data['sales'].iloc[-1]
         return None
 
-    @classmethod
-    def load_model(cls, symbol='AAPL'):
-        try:
-            return joblib.load(f'models/stock_model_{symbol}.pkl')
-        except FileNotFoundError:
-            logger.warning(f"Model for {symbol} not found.")
-            return None
-
-    def save_model(self):
-        if self.symbol:
-            joblib.dump(self, f'models/stock_model_{self.symbol}.pkl')
-            logger.info(f"Saved to models/stock_model_{self.symbol}.pkl")
