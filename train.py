@@ -1,10 +1,9 @@
-# train.py
+
 import pandas as pd
 import numpy as np
 import os
 import sys
 
-# Add current directory to path
 sys.path.insert(0, os.getcwd())
 
 os.makedirs('models', exist_ok=True)
