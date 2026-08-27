@@ -1,0 +1,14 @@
+artifact_uri: /app/mlruns/125071480505110267/6ebf5ffa15c54f259ebdc496c0615c32/artifacts
+end_time: 1787664860098
+entry_point_name: ''
+experiment_id: '125071480505110267'
+lifecycle_stage: active
+run_id: 6ebf5ffa15c54f259ebdc496c0615c32
+run_name: stock_NVDA_20260825_1334
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1787664859899
+status: 3
+tags: []
+user_id: ravindran

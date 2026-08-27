@@ -1,0 +1,108 @@
+# .github/workflows/ci_cd.yml
+name: CI/CD + Daily Retraining
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"   # daily at 02:00 UTC — automated retraining
+
+env:
+  IMAGE_NAME: prediction-api
+  AWS_REGION: us-east-1
+
+jobs:
+  # ── Tests ──────────────────────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest tests/ -v --tb=short
+
+  # ── Build & push Docker image ──────────────────────────────────────────────
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build & push
+        run: |
+          IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker build -f docker/Dockerfile -t $IMAGE .
+          docker push $IMAGE
+
+  # ── Deploy to ECS ──────────────────────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster prediction-cluster \
+            --service prediction-api \
+            --force-new-deployment
+
+  # ── Daily automated retraining ─────────────────────────────────────────────
+  retrain:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run daily retraining pipeline
+        env:
+          ALPHA_VANTAGE_KEY: ${{ secrets.ALPHA_VANTAGE_KEY }}
+          NEWS_API_KEY:       ${{ secrets.NEWS_API_KEY }}
+          FRED_API_KEY:       ${{ secrets.FRED_API_KEY }}
+        run: |
+          python - <<'EOF'
+          from app.mlops.mlops_pipeline import MLOpsPipeline
+          from app.models.stock_predictor import StockPredictor
+          from app.data.data_fusion import DataFusion
+
+          pipeline = MLOpsPipeline()
+          fusion   = DataFusion()
+          symbols  = ['AAPL', 'NVDA', 'MSFT', 'TSLA', 'GOOGL']
+
+          for sym in symbols:
+              try:
+                  ref_df = fusion.fetch_yfinance(sym, period='1y')
+                  result = pipeline.run_daily_pipeline(
+                      symbol=sym,
+                      model_class=StockPredictor,
+                      fetch_fn=lambda s: fusion.fetch_yfinance(s, period='2y'),
+                      reference_df=ref_df,
+                  )
+                  print(f"{sym}: retrained={result.get('retrained')}")
+              except Exception as e:
+                  print(f"{sym} failed: {e}")
+          EOF

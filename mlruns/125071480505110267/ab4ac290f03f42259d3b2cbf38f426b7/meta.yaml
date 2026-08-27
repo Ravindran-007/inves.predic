@@ -1,0 +1,14 @@
+artifact_uri: /app/mlruns/125071480505110267/ab4ac290f03f42259d3b2cbf38f426b7/artifacts
+end_time: 1787148260070
+entry_point_name: ''
+experiment_id: '125071480505110267'
+lifecycle_stage: active
+run_id: ab4ac290f03f42259d3b2cbf38f426b7
+run_name: stock_AAPL_20260819_1404
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1787148259829
+status: 3
+tags: []
+user_id: ravindran

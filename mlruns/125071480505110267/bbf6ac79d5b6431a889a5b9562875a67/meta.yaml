@@ -1,0 +1,14 @@
+artifact_uri: /app/mlruns/125071480505110267/bbf6ac79d5b6431a889a5b9562875a67/artifacts
+end_time: 1787664887074
+entry_point_name: ''
+experiment_id: '125071480505110267'
+lifecycle_stage: active
+run_id: bbf6ac79d5b6431a889a5b9562875a67
+run_name: stock_TSLA_20260825_1334
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1787664886953
+status: 3
+tags: []
+user_id: ravindran

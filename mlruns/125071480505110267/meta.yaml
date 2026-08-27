@@ -1,0 +1,9 @@
+artifact_location: /app/mlruns/125071480505110267
+creation_time: 1786980683069
+effective_trace_archival_retention: null
+experiment_id: '125071480505110267'
+last_update_time: 1786980683069
+lifecycle_stage: active
+name: investment_sales_prediction
+trace_location: null
+workspace: default
