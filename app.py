@@ -47,13 +47,13 @@ with st.sidebar:
                 st.caption(f'{len(results)} result(s):')
                 cols = st.columns(2)
                 for idx, (sym, name) in enumerate(results[:10]):
-                    if cols[idx % 2].button(f'{sym}', key=f'r_{sym}', use_container_width=True, help=name):
+                    if cols[idx % 2].button(f'{sym}', key=f'r_{sym}', width='stretch', help=name):
                         st.session_state.current_symbol = sym
                         st.session_state.symbol_search = sym
                         st.rerun()
             else:
                 st.warning('No results. Try as symbol:')
-                if st.button(f"Use '{search_query.upper()}'", use_container_width=True):
+                if st.button(f"Use '{search_query.upper()}'", width='stretch'):
                     st.session_state.current_symbol = search_query.upper()
                     st.session_state.symbol_search = search_query.upper()
                     st.rerun()
@@ -61,7 +61,7 @@ with st.sidebar:
             st.caption('Popular:')
             cols = st.columns(4)
             for idx, sym in enumerate(['NVDA', 'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'META', 'AVGO']):
-                if cols[idx % 4].button(sym, key=f'p_{sym}', use_container_width=True):
+                if cols[idx % 4].button(sym, key=f'p_{sym}', width='stretch'):
                     st.session_state.current_symbol = sym
                     st.session_state.symbol_search = sym
                     st.rerun()
@@ -70,9 +70,9 @@ with st.sidebar:
             st.success(f'Selected: **{current_sym}**')
         else:
             st.info('Select a stock above')
-        period = st.selectbox('Data Period', [ '2y','3y','5y'], index=3)
+        period = st.selectbox('Data Period', [ '2y','3y','5y'], index=2)
         forecast_days = st.slider('Forecast Days', 7, 365, 90, step=7)
-        if st.button('Run Forecast', type='primary', use_container_width=True):
+        if st.button('Run Forecast', type='primary', width='stretch'):
             symbol = st.session_state.current_symbol
             if not symbol:
                 st.warning('Select a stock first.')
@@ -104,7 +104,7 @@ with st.sidebar:
         if symbol != st.session_state.trained_inv_symbol:
             st.session_state.stock_model = None
             st.session_state.stock_data = None
-        if st.button('Run Forecast', type='primary', use_container_width=True):
+        if st.button('Run Forecast', type='primary', width='stretch'):
             if not symbol:
                 st.warning('Enter a symbol.')
             else:
@@ -148,9 +148,9 @@ if params['type'] == 'sales':
             fig.add_trace(go.Scatter(x=pred_df['date'], y=pred_df['yhat_upper'], mode='lines', line=dict(width=0), showlegend=False))
             fig.add_trace(go.Scatter(x=pred_df['date'], y=pred_df['yhat_lower'], fill='tonexty', mode='lines', line=dict(width=0), fillcolor='rgba(46,134,171,0.15)', name='95% CI'))
             fig.update_layout(title=f'{company_name} — {params['forecast_days']}-Day Forecast', xaxis_title='Date', yaxis_title='Price ($)', height=480, hovermode='x unified', template='plotly_white', yaxis=dict(tickprefix='$', tickformat='.2f'), legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             with st.expander('View forecast data'):
-                st.dataframe(pred_df.rename(columns={'date': 'Date', 'yhat': 'Forecast ($)', 'yhat_lower': 'Lower ($)', 'yhat_upper': 'Upper ($)'}).style.format({'Forecast ($)': '${:.2f}', 'Lower ($)': '${:.2f}', 'Upper ($)': '${:.2f}'}), use_container_width=True, hide_index=True)
+                st.dataframe(pred_df.rename(columns={'date': 'Date', 'yhat': 'Forecast ($)', 'yhat_lower': 'Lower ($)', 'yhat_upper': 'Upper ($)'}).style.format({'Forecast ($)': '${:.2f}', 'Lower ($)': '${:.2f}', 'Upper ($)': '${:.2f}'}), width='stretch', hide_index=True)
             with st.expander('Model performance details'):
                 perf = sales_model.performance
                 m1, m2, m3, m4 = st.columns(4)
@@ -185,13 +185,13 @@ else:
             fig.add_trace(go.Scatter(x=hist_df['date'], y=hist_df['sales'], name='Historical', line=dict(color='#A23B72', width=2)))
             fig.add_trace(go.Scatter(x=pred_df['date'], y=pred_df['yhat'], name='Forecast', mode='lines+markers', line=dict(color='#2E86AB', width=2, dash='dash'), marker=dict(size=7)))
             fig.update_layout(title=f'{symbol} — {params['forecast_days']}-Day Price Forecast', xaxis_title='Date', yaxis_title='Price ($)', height=480, hovermode='x unified', template='plotly_white', yaxis=dict(tickprefix='$', tickformat='.2f'), legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             if 'up_probability' in pred_df.columns:
                 disp = pred_df.copy()
                 disp['Signal'] = disp['up_probability'].apply(lambda p: '🟢 BUY' if p >= 0.6 else '🔴 SELL' if p <= 0.4 else '🟡 HOLD')
                 disp['Up Probability'] = disp['up_probability'].map('{:.1%}'.format)
                 disp['Price'] = disp['yhat'].map('${:.2f}'.format)
-                st.dataframe(disp[['date', 'Price', 'Up Probability', 'Signal']].rename(columns={'date': 'Date'}), use_container_width=True, hide_index=True)
+                st.dataframe(disp[['date', 'Price', 'Up Probability', 'Signal']].rename(columns={'date': 'Date'}), width='stretch', hide_index=True)
             with st.expander('Model performance details'):
                 perf = predictor.performance
                 m1, m2, m3, m4 = st.columns(4)
