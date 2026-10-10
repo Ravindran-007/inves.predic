@@ -70,7 +70,7 @@ with st.sidebar:
             st.success(f'Selected: **{current_sym}**')
         else:
             st.info('Select a stock above')
-        period = st.selectbox('Data Period', ['1mo', '3mo', '6mo', '1y', '2y', '5y'], index=3)
+        period = st.selectbox('Data Period', [ '2y','3y','5y'], index=3)
         forecast_days = st.slider('Forecast Days', 7, 365, 90, step=7)
         if st.button('Run Forecast', type='primary', use_container_width=True):
             symbol = st.session_state.current_symbol
@@ -99,7 +99,7 @@ with st.sidebar:
     else:
         st.subheader('Stock Settings')
         symbol = st.text_input('Symbol', value='AAPL').upper().strip()
-        period = st.selectbox('History Period', ['1y', '2y', '3y', '5y'], index=1)
+        period = st.selectbox('History Period', [ '2y', '3y', '5y'], index=1)
         forecast_days = st.slider('Forecast Days', 5, 30, 5, step=1)
         if symbol != st.session_state.trained_inv_symbol:
             st.session_state.stock_model = None
